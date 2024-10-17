@@ -1,9 +1,9 @@
 # SAE_Projet_Dev_IA
 
-- [ ] Initiation du Trello
+- [X] Initiation du Trello
 - [X] Choix de la techno pour dév l'appli -> Angular (Logiciel Windows/Web) & Ionic (Mobile)
 - [X] Choix de la techno pour entraîner le modèle d'IA -> Utilisation de Tensorflow.js avec la bibliothèque OpenCV.js pour entraîner le modèle d'IA
-- [ ] Apprentissage de Tensorflow.js avec la biliothèque OpenCV.js
+- [ ] Apprentissage de Tensorflow.js avec la bibliothèque OpenCV.js
 - [ ] Choix du modèle d'IA 
 - [ ] Acquisition d'images (caméra, galerie)
 - [ ] Implémentation du modèle de reconnaissance dans l'appli
