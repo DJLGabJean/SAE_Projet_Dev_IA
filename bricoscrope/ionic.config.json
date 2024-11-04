@@ -1,0 +1,7 @@
+{
+  "name": "bricoscrope",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
