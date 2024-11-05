@@ -1,17 +1,36 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
     <ion-title>
-      Tab 2
+      Capture Image
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <div class="loading-overlay" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <div id="cameraPreview" class="cameraPreview"></div>
+  <div *ngIf="cameraActive && !loading">
+    
+    <ion-button (click)="stopCamera()" expand="block" id="close">
+      <ion-icon name="close-circle" slot=""icon-only></ion-icon>
+    </ion-button>
+
+    <ion-button (click)="captureImage()" expand="block" id="capture">
+      <ion-icon name="camera" slot=""icon-only></ion-icon>
+    </ion-button>
+
+    <ion-button (click)="flipCamera()" expand="block" id="flip">
+      <ion-icon name="camera-reverse" slot=""icon-only></ion-icon>
+    </ion-button>
+  </div>
+
+
+  <ion-img [src]="image" *ngIf="image && !cameraActive"></ion-img>
+  <ion-button (click)="openCamera()" expand="block" *ngIf="!cameraActive && !loading">Open Camera</ion-button>
+  <ion-button (click)="clearImage()" expand="block" *ngIf="image && !cameraActive">Clear Image</ion-button>
+
 </ion-content>
