@@ -5,22 +5,11 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-grid>
-    <ion-row>
-      <ion-col size="12" class="ion-text-center">
-        <ion-button expand="block" (click)="importFromGallery()">
-          <ion-icon slot="start" name="images"></ion-icon>
-          Importer depuis la Galerie
-        </ion-button>
-        <p>Sélectionnez des images depuis la galerie de votre appareil.</p>
-      </ion-col>
-    </ion-row>
-    <ion-row *ngIf="selectedImage">
-      <ion-col size="12" class="ion-text-center">
-        <div>
-          <img [src]="selectedImage" alt="Selected Image" />
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <ion-button expand="full" (click)="importFromGallery()">
+    Importer depuis la Galerie
+  </ion-button>
+
+  <ion-item>
+    <canvas id="canvasOutput"></canvas>
+  </ion-item>
 </ion-content>

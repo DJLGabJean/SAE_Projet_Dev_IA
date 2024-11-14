@@ -1,0 +1,33 @@
+// Pour centrer le bouton et le canvas et leur donner un padding pour un affichage optimal
+ion-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    padding: 16px;
+  }
+  
+  // Ajuster le bouton pour qu'il prenne toute la largeur
+  ion-button {
+    width: 100%;
+    max-width: 300px; // Optionnel : limite la largeur maximale pour les écrans plus grands
+    margin-bottom: 20px;
+  }
+  
+  // Adapter l'élément ion-item pour qu'il prenne la largeur de l'écran
+  ion-item {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  // Canvas qui prend toute la largeur de l’écran avec un aspect ratio pour l’image
+  canvas#canvasOutput {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1; // Ajuster selon la taille de l’image ou de la détection
+    border: 1px solid #ccc; // Optionnel : ajoute une bordure légère
+    margin-top: 10px;
+  }
+  
