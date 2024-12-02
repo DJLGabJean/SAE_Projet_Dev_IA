@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { OpenCVService } from '../services/opencv.service';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab1',
@@ -11,7 +12,10 @@ export class Tab1Page {
 
   selectedImage: string | undefined;
 
-  constructor(private opencvService: OpenCVService) {}
+  constructor(
+    private opencvService: OpenCVService,
+    private platform: Platform
+  ) {}
 
   async importFromGallery() {
     const image = await Camera.getPhoto({
@@ -27,10 +31,41 @@ export class Tab1Page {
     const imgElement = new Image();
     imgElement.src = this.selectedImage!;
     imgElement.onload = () => {
-      this.opencvService.detectObjects(imgElement, 'canvasOutput');
+      const resizedImage = this.resizeImage(imgElement);
+      const resizedImageElement = new Image();
+      resizedImageElement.src = resizedImage.toDataURL();
+      resizedImageElement.onload = () => {
+        this.opencvService.detectObjects(resizedImageElement, 'canvasOutput');
+      };
     };
   }
-}
 
+  resizeImage(img: HTMLImageElement): HTMLCanvasElement {
+    const maxWidth = this.platform.width();
+    const maxHeight = this.platform.height();
+    let width = img.width;
+    let height = img.height;
+
+    if (width > height) {
+      if (width > maxWidth) {
+        height *= maxWidth / width;
+        width = maxWidth;
+      }
+    } else {
+      if (height > maxHeight) {
+        width *= maxHeight / height;
+        height = maxHeight;
+      }
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx!.drawImage(img, 0, 0, width, height);
+
+    return canvas;
+  }
+}
 
 

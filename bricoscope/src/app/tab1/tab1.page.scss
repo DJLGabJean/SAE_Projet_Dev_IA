@@ -10,24 +10,50 @@ ion-content {
   // Ajuster le bouton pour qu'il prenne toute la largeur
   ion-button {
     width: 100%;
-    max-width: 300px; // Optionnel : limite la largeur maximale pour les écrans plus grands
-    margin-bottom: 20px;
+    max-width: 300px;
+    margin: 20px auto;
+    display: block; 
   }
+  
   
   // Adapter l'élément ion-item pour qu'il prenne la largeur de l'écran
   ion-item {
+    --background: transparent;
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
+    margin: 0 auto;
   }
   
-  // Canvas qui prend toute la largeur de l’écran avec un aspect ratio pour l’image
   canvas#canvasOutput {
     width: 100%;
-    max-width: 100%;
+    max-width: 800px;
     height: auto;
-    aspect-ratio: 1 / 1; // Ajuster selon la taille de l’image ou de la détection
-    border: 1px solid #ccc; // Optionnel : ajoute une bordure légère
-    margin-top: 10px;
+    aspect-ratio: 16/9;
+    border: 1px solid #ccc;
+    margin: 20px auto;
+    display: block;
   }
+  
+  // Ajustements pour les écrans moyens
+  @media (min-width: 768px) {
+    canvas#canvasOutput {
+      width: 80%;
+      max-height: 60vh;
+    }
+  }
+  
+  // Ajustements pour les grands écrans
+  @media (min-width: 1200px) {
+    canvas#canvasOutput {
+      width: 60%;
+      max-height: 70vh;
+    }
+    
+    ion-item {
+      max-width: 1200px;
+    }
+  }
+  
   
