@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { OpencvService } from './opencv.service';
+import { OpenCVService } from './opencv.service';
 
-describe('OpencvService', () => {
-  let service: OpencvService;
+describe('OpenCVService', () => {
+  let service: OpenCVService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(OpencvService);
+    service = TestBed.inject(OpenCVService);
   });
 
   it('should be created', () => {

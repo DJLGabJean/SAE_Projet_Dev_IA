@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { OpenCVService } from '../opencv.service';
+import { OpenCVService } from '../services/opencv.service';
 
 @Component({
   selector: 'app-tab1',

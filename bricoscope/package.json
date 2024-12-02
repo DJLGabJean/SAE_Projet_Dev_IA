@@ -34,6 +34,7 @@
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.0.0",
     "@ionic/react": "^8.4.0",
+    "browser-image-resizer": "^2.4.1",
     "firebase": "^10.14.1",
     "globby": "^14.0.2",
     "ionicons": "^7.0.0",
