@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions } from '@capacitor-community/camera-preview';
-
-const cameraPreviewOptions: CameraPreviewOptions = {
-  position: 'rear',
-  height: 1920,
-  width: 1080
-};
-CameraPreview.start(cameraPreviewOptions);
+import { Camera } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-tab2',
@@ -20,12 +15,37 @@ export class Tab2Page {
 
   constructor() {}
 
-  openCamera() {
+  async checkCameraPermission(): Promise<boolean> {
+    // Vérifie si la plateforme est mobile
+    const platform = Capacitor.getPlatform();
+    if (platform !== 'ios' && platform !== 'android') {
+      console.log('Pas de gestion des permissions sur cette plateforme');
+      return true; // Retourne "true" pour ignorer la demande de permission sur le web
+    }
+
+    // Demande la permission pour la caméra
+    const permissions = await Camera.requestPermissions({ permissions: ['camera'] });
+    return permissions.camera === 'granted';
+  }
+
+  async openCamera() {
+    if (this.cameraActive) {
+      console.log('Caméra déjà active');
+      return;
+    }
+
+    const hasPermission = await this.checkCameraPermission();
+    if (!hasPermission) {
+      console.log('Permission refusée');
+      return;
+    }
+
     const cameraPreviewOptions: CameraPreviewOptions = {
       position: 'rear',
-      parent : 'cameraPreview',
-      className : 'cameraPreview',
+      parent: 'cameraPreview',
+      className: 'cameraPreview',
     };
+
     this.loading = true;
     setTimeout(() => {
       CameraPreview.start(cameraPreviewOptions);
@@ -40,10 +60,6 @@ export class Tab2Page {
   }
 
   async captureImage() {
-    const cameraPreviewPictureOptions = {
-      quality: 90
-    };
-
     const result = await CameraPreview.capture({ quality: 90 });
     this.image = `data:image/jpeg;base64,${result.value}`;
     this.stopCamera();
@@ -55,5 +71,11 @@ export class Tab2Page {
 
   clearImage() {
     this.image = null;
+  }
+
+  ionViewWillLeave() {
+    if (this.cameraActive) {
+      this.stopCamera();
+    }
   }
 }

@@ -1,14 +1,14 @@
 ion-content {
-  --background: transparent!important;
+  --background: transparent !important;
 
-.overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-}
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
 
-.loading-overlay {
+  .loading-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -19,48 +19,69 @@ ion-content {
     align-items: center;
     justify-content: center;
     z-index: 1000;
-}
+  }
 
-.cameraPreview {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
+  .camera-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 300px; /* Limite la hauteur de la caméra */
+    background-color: black; /* Couleur de fond par défaut */
+    position: relative; /* Conteneur relatif pour les boutons */
+    overflow: hidden;
+    margin: 20px auto; /* Centré avec un espace en haut et en bas */
+  }
 
-#capture {
+  .cameraPreview {
+    width: 100%;
+    height: 100%;
+    position: relative; /* S'ajuste au conteneur camera-container */
+  }
+
+  .controls {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+    position: relative; /* Position des boutons par rapport à la caméra */
+  }
+
+  /* Styles pour les boutons */
+  #capture, #close, #flip {
+    width: 50px;
+    height: 50px;
+    border-radius: 30px;
+  }
+
+  #capture {
+    background-color: white;
     position: absolute;
-    bottom: 30px;
-    left: calc(50% - 25px);
-    width: 50px;
-    height: 50px;
-}
+    bottom: 10px;
+    left: calc(50% - 25px); /* Centré */
+    z-index: 20;
+  }
 
-#close {
-  position: absolute;
-  bottom: 30px;
-    left: calc(50% - 175px);
-    width: 50px;
-    height: 50px;
-}
+  #close {
+    background-color: red;
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    z-index: 20;
+  }
 
-#flip {
-  position: absolute;
-  bottom: 30px;
-  left: calc(50% + 125px);
-  width: 50px;
-  height: 50px;
-}
+  #flip {
+    background-color: blue;
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    z-index: 20;
+  }
 
-#close::part(native) {
+  /* Uniformisation des boutons avec part */
+  #close::part(native),
+  #capture::part(native),
+  #flip::part(native) {
     border-radius: 30px;
-}
-
-#capture::part(native) {
-    border-radius: 30px;
-}
-
-#flip::part(native) {
-    border-radius: 30px;
-}
-
+  }
 }
