@@ -12,18 +12,24 @@ export class Tab2Page {
   image: string | null = null;
   cameraActive = false;
   loading = false;
+  isAndroid: boolean;
+  isWeb: boolean;
 
-  constructor() {}
+  constructor() {
+    // Vérifie la plateforme dès la création de l'instance de la page
+    const platform = Capacitor.getPlatform();
+    this.isAndroid = platform === 'android';
+    this.isWeb = platform === 'web';
+  }
 
   async checkCameraPermission(): Promise<boolean> {
-    // Vérifie si la plateforme est mobile
-    const platform = Capacitor.getPlatform();
-    if (platform !== 'ios' && platform !== 'android') {
+    // Vérifie si la plateforme est mobile (iOS ou Android)
+    if (this.isWeb) {
       console.log('Pas de gestion des permissions sur cette plateforme');
       return true; // Retourne "true" pour ignorer la demande de permission sur le web
     }
 
-    // Demande la permission pour la caméra
+    // Demande la permission pour la caméra (iOS et Android)
     const permissions = await Camera.requestPermissions({ permissions: ['camera'] });
     return permissions.camera === 'granted';
   }

@@ -16,16 +16,19 @@
   <!-- Zone de prévisualisation de la caméra -->
   <div id="cameraPreview" class="camera-container"></div>
 
-  <!-- Boutons de contrôle de la caméra -->
+  <!-- Superposition des icônes -->
   <div *ngIf="cameraActive && !loading" class="controls">
+    <!-- Bouton "Fermer" (toutes plateformes sauf Android avec isAndroid condition) -->
     <ion-button (click)="stopCamera()" expand="block" id="close">
       <ion-icon name="close-circle" slot="icon-only"></ion-icon>
     </ion-button>
 
+    <!-- Bouton "Capture" (toutes plateformes sauf Android avec isAndroid condition) -->
     <ion-button (click)="captureImage()" expand="block" id="capture">
       <ion-icon name="camera" slot="icon-only"></ion-icon>
     </ion-button>
 
+    <!-- Bouton "Inverser la caméra" (toutes plateformes) -->
     <ion-button (click)="flipCamera()" expand="block" id="flip">
       <ion-icon name="camera-reverse" slot="icon-only"></ion-icon>
     </ion-button>
