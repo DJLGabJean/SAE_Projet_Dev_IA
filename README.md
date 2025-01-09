@@ -2,7 +2,7 @@
 
 ## Prérequis
 
-Le projet comporte le framework Ionic (donc penser à installer angular puis ionic)
+Le projet comporte le framework Ionic (donc penser à installer Angular puis Ionic)
 
 - [https://angular.dev/installation]
 - [https://ionicframework.com/]
