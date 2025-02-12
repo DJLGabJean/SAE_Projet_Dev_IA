@@ -17,83 +17,79 @@ export class TensorflowjsService {
 
   private async loadModel() {
     // Charge le modèle pré-entraîné Yolov8
-    this.model = await tf.loadGraphModel('assets/model/model.json');
-  }
-
-  private preprocess(source: HTMLVideoElement | HTMLImageElement, modelWidth: number, modelHeight: number): [tf.Tensor, number, number] {
-    return tf.tidy(() => {
-      const img = tf.browser.fromPixels(source);
-      const [h, w] = img.shape.slice(0, 2);
-      const maxSize = Math.max(w, h);
-      const imgPadded = img.pad([
-        [0, maxSize - h],
-        [0, maxSize - w],
-        [0, 0],
-      ]);
-
-      const xRatio = maxSize / w;
-      const yRatio = maxSize / h;
-
-      const input = tf.image
-        .resizeBilinear(imgPadded as tf.Tensor3D, [modelWidth, modelHeight])
-        .div(255.0)
-        .expandDims(0);
-
-      return [input, xRatio, yRatio];
-    });
+    this.model = await tf.loadGraphModel('../../assets/model/yolov8n/model.json');
   }
 
   public async detect(source: HTMLImageElement | HTMLVideoElement, canvasRef: HTMLCanvasElement): Promise<void> {
     if (!this.model) {
-      console.error("Le modèle n'est pas encore chargé")
-      return
+        console.error("Le modèle n'est pas encore chargé");
+        return;
     }
 
     const [modelWidth, modelHeight] =
-      this.model && this.model.inputs[0].shape ? this.model.inputs[0].shape.slice(1, 3) : [0, 0]
+        this.model && this.model.inputs[0].shape ? this.model.inputs[0].shape.slice(1, 3) : [0, 0];
 
-    tf.engine().startScope()
-    const [input, xRatio, yRatio] = this.preprocess(source, modelWidth, modelHeight)
+    tf.engine().startScope();
+    const [input, xRatio, yRatio] = this.preprocess(source, modelWidth, modelHeight);
 
-    const res = this.model.execute(input) as tf.Tensor
-    const transRes = res.transpose([0, 2, 1])
+    const res = this.model.execute(input) as tf.Tensor;
+    const transRes = res.transpose([0, 2, 1]);
     const boxes = tf.tidy(() => {
-      const w = transRes.slice([0, 0, 2], [-1, -1, 1])
-      const h = transRes.slice([0, 0, 3], [-1, -1, 1])
-      const x1 = tf.sub(transRes.slice([0, 0, 0], [-1, -1, 1]), tf.div(w, 2))
-      const y1 = tf.sub(transRes.slice([0, 0, 1], [-1, -1, 1]), tf.div(h, 2))
-      return tf.concat([y1, x1, tf.add(y1, h), tf.add(x1, w)], 2).squeeze()
-    })
+        const w = transRes.slice([0, 0, 2], [-1, -1, 1]);
+        const h = transRes.slice([0, 0, 3], [-1, -1, 1]);
+        const x1 = tf.sub(transRes.slice([0, 0, 0], [-1, -1, 1]), tf.div(w, 2));
+        const y1 = tf.sub(transRes.slice([0, 0, 1], [-1, -1, 1]), tf.div(h, 2));
+        return tf.concat([y1, x1, tf.add(y1, h), tf.add(x1, w)], 2).squeeze();
+    });
 
     const [scores, classes] = tf.tidy(() => {
-      // Correction du slice pour utiliser un array pour les dimensions
-      const rawScores = transRes.slice([0, 0, 4], [-1, -1, this.labels.length]).squeeze([0])
-      // Utilisation de la méthode as() pour assurer le type correct
-      return [rawScores.max(1), rawScores.argMax(1)] as [tf.Tensor1D, tf.Tensor1D]
-    })
+        const rawScores = transRes.slice([0, 0, 4], [-1, -1, this.labels.length]).squeeze([0]);
+        return [rawScores.max(1), rawScores.argMax(1)] as [tf.Tensor1D, tf.Tensor1D];
+    });
 
-    // Assurez-vous que boxes est un Tensor2D avant nonMaxSuppression
-    const reshapedBoxes = boxes.reshape([-1, 4])
+    const reshapedBoxes = boxes.reshape([-1, 4]);
     const nms = await tf.image.nonMaxSuppressionAsync(
-      reshapedBoxes as tf.Tensor2D,
-      scores as tf.Tensor1D,
-      500,
-      0.45,
-      0.2,
-    )
+        reshapedBoxes as tf.Tensor2D,
+        scores as tf.Tensor1D,
+        500,
+        0.45,
+        0.2,
+    );
 
-    // Conversion explicite des données en Float32Array
-    const boxes_data = new Float32Array(boxes.gather(nms, 0).dataSync())
-    const scores_data = new Float32Array(scores.gather(nms, 0).dataSync())
-    const classes_data = new Float32Array(classes.gather(nms, 0).dataSync())
+    const boxes_data = new Float32Array(boxes.gather(nms, 0).dataSync());
+    const scores_data = new Float32Array(scores.gather(nms, 0).dataSync());
+    const classes_data = new Float32Array(classes.gather(nms, 0).dataSync());
 
-    this.renderBoxes(canvasRef, boxes_data, scores_data, classes_data, [xRatio, yRatio])
+    // 🛠️ **Correction du ratio des bounding boxes**
+    const imgWidth = source instanceof HTMLImageElement ? source.naturalWidth : source.width;
+    const imgHeight = source instanceof HTMLImageElement ? source.naturalHeight : source.height;
+    const canvasWidth = canvasRef.width;
+    const canvasHeight = canvasRef.height;
 
-    // Nettoyage des tenseurs
-    tf.dispose([res, transRes, boxes, scores, classes, nms, reshapedBoxes])
+    const xScale = canvasWidth / modelWidth;
+    const yScale = canvasHeight / modelHeight;
+    console.log(`📏 Ajustement des bounding boxes - xScale: ${xScale}, yScale: ${yScale}`);
 
-    tf.engine().endScope()
-  }
+    console.log(`📏 Image originale: ${imgWidth}x${imgHeight}`);
+    console.log(`📏 Canvas: ${canvasWidth}x${canvasHeight}`);
+    console.log(`🔄 Ratios appliqués - xScale: ${xScale}, yScale: ${yScale}`);
+
+    // 🔹 **Appliquer le bon ratio aux bounding boxes**
+    for (let i = 0; i < boxes_data.length; i += 4) {
+      boxes_data[i] *= yRatio * yScale; // y1
+      boxes_data[i + 1] *= xRatio * xScale; // x1
+      boxes_data[i + 2] *= yRatio * yScale; // y2
+      boxes_data[i + 3] *= xRatio * xScale; // x2
+    }
+
+    setTimeout(() => {
+      this.renderBoxes(canvasRef, boxes_data, scores_data, classes_data, [1, 1]); 
+    }, 50); // Fixé à [1,1] car on a déjà appliqué le scaling
+
+    tf.dispose([res, transRes, boxes, scores, classes, nms, reshapedBoxes]);
+    tf.engine().endScope();
+}
+
 
   public detectVideo(vidSource: HTMLVideoElement, canvasRef: HTMLCanvasElement): void {
     const detectFrame = async () => {
@@ -110,6 +106,18 @@ export class TensorflowjsService {
     detectFrame();
   }
 
+  private preprocess(source: HTMLImageElement | HTMLVideoElement, modelWidth: number, modelHeight: number): [tf.Tensor, number, number] {
+    const img = tf.browser.fromPixels(source);
+    const [h, w] = img.shape.slice(0, 2);
+    const xRatio = w / modelWidth;
+    const yRatio = h / modelHeight;
+    const resized = tf.image.resizeBilinear(img, [modelWidth, modelHeight]);
+    const casted = resized.cast('float32');
+    const expanded = casted.expandDims(0);
+    const normalized = expanded.div(255.0);
+    return [normalized, xRatio, yRatio];
+  }
+
   private renderBoxes(
     canvasRef: HTMLCanvasElement,
     boxes_data: Float32Array,
@@ -120,7 +128,7 @@ export class TensorflowjsService {
     const ctx = canvasRef.getContext('2d');
     if (!ctx) return;
 
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
+    // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
     // font configs
     const font = `${Math.max(
